@@ -1,3 +1,4 @@
+// Contadores de itens
 let pokeCount = 0;
 let temakiCount = 0;
 let cevicheCount = 0;
@@ -69,7 +70,7 @@ function addCeviche() {
     cevicheContainer.appendChild(cevicheDiv);
 }
 
-// Função para adicionar um item ao carrinho
+// Função genérica para adicionar um item ao carrinho com verificação de duplicatas
 function addToCart(itemType, itemNumber, button) {
     let itemDetails = '';
 
@@ -85,39 +86,64 @@ function addToCart(itemType, itemNumber, button) {
         itemDetails = `Ceviche ${itemNumber}: ${cevicheSelected}`;
     }
 
-    cartItems.push(itemDetails);
-    updateCart();
+    const itemIndex = cartItems.findIndex(item => item.name === itemDetails);
+    
+    // Verifica se o item já existe no carrinho
+    if (itemIndex !== -1) {
+        cartItems[itemIndex].quantity = 1; // Mantém a quantidade em 1
+    } else {
+        cartItems.push({ name: itemDetails, quantity: 1 });
+    }
+
+    updateCartDisplay();
 }
 
 // Função para remover um item
 function removeItem(button) {
-    // Remove o item da lista
     const itemDiv = button.parentElement;
+    const itemName = itemDiv.querySelector('h4').textContent;
+    
+    // Remove o item correspondente do carrinho
+    cartItems = cartItems.filter(item => !item.name.startsWith(itemName));
+    
+    // Remove o item visualmente
     itemDiv.remove();
+    updateCartDisplay();
+}
+
+// Função para atualizar o display do carrinho
+function updateCartDisplay() {
+    const cart = document.getElementById('cart');
+    cart.innerHTML = '';
+    cartItems.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.name}`;
+        
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remover';
+        removeButton.onclick = () => removeItemFromCart(item.name);
+
+        li.appendChild(removeButton);
+        cart.appendChild(li);
+    });
+}
+
+// Função para remover item do carrinho
+function removeItemFromCart(itemName) {
+    cartItems = cartItems.filter(item => item.name !== itemName);
+    updateCartDisplay();
+}
+
+// Função para enviar o pedido via WhatsApp
+function sendOrder() {
+    const phoneNumber = '5521996481418';
+    const message = encodeURIComponent(`Pedido:\n${cartItems.map(item => item.name).join('\n')}\nPara o cliente: ${document.getElementById('name').value}\nEndereço: ${document.getElementById('address').value}`);
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+    window.open(whatsappUrl, '_blank');
 }
 
 // Função para limpar o carrinho
 function clearCart() {
     cartItems = [];
-    updateCart();
-}
-
-// Função para atualizar o carrinho
-function updateCart() {
-    const cart = document.getElementById('cart');
-    cart.innerHTML = '';
-    cartItems.forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = item;
-        cart.appendChild(li);
-    });
-}
-
-// Função para enviar o pedido via WhatsApp
-function sendOrder() {
-    const phoneNumber = '5521996481418'; // Número atualizado
-    const message = encodeURIComponent(`Pedido:\n${cartItems.join('\n')}\nPara el cliente: ${document.getElementById('name').value}\nDirección: ${document.getElementById('address').value}`);
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
-
-    window.open(whatsappUrl, '_blank');
+    updateCartDisplay();
 }
