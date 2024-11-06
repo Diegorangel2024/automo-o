@@ -37,6 +37,48 @@ function addPoke() {
     pokeContainer.appendChild(pokeDiv);
 }
 
+// Função genérica para adicionar um item ao carrinho com verificação de duplicatas e limitação de toppings
+function addToCart(itemType, itemNumber, button) {
+    let itemDetails = '';
+
+    if (itemType === 'Poke') {
+        const base = button.parentElement.querySelector('.poke-base').value;
+        const selectedToppings = Array.from(button.parentElement.querySelectorAll('.poke-toppings input:checked')).map(input => input.value);
+
+        // Limita a seleção de toppings a 5
+        if (selectedToppings.length > 5) {
+            alert("Você pode selecionar no máximo 5 toppings.");
+            // Desmarcando o topping extra se o número exceder 5
+            button.parentElement.querySelectorAll('.poke-toppings input').forEach(input => {
+                if (input.checked && selectedToppings.length > 5) {
+                    input.checked = false;
+                    selectedToppings.pop(); // Remove o último topping selecionado
+                }
+            });
+            return;  // Não adiciona ao carrinho se exceder o limite
+        }
+
+        itemDetails = `Poke ${itemNumber}: Base: ${base}, Toppings: ${selectedToppings.join(', ')}`;
+    } else if (itemType === 'Temaki') {
+        const temakiType = button.parentElement.querySelector(`input[name="temaki${itemNumber}"]:checked`).value;
+        itemDetails = `Temaki ${itemNumber}: Tipo: ${temakiType}`;
+    } else if (itemType === 'Ceviche') {
+        const cevicheSelected = button.parentElement.querySelector(`#ceviche${itemNumber}`).checked ? 'Ceviche' : '';
+        itemDetails = `Ceviche ${itemNumber}: ${cevicheSelected}`;
+    }
+
+    const itemIndex = cartItems.findIndex(item => item.name === itemDetails);
+
+    // Verifica se o item já existe no carrinho
+    if (itemIndex !== -1) {
+        cartItems[itemIndex].quantity = 1; // Mantém a quantidade em 1
+    } else {
+        cartItems.push({ name: itemDetails, quantity: 1 });
+    }
+
+    updateCartDisplay();
+}
+
 // Função para adicionar Temaki ao carrinho
 function addTemaki() {
     temakiCount++;
@@ -68,41 +110,6 @@ function addCeviche() {
         <button type="button" onclick="removeItem(this)">Quitar Ceviche</button>
     `;
     cevicheContainer.appendChild(cevicheDiv);
-}
-
-// Função genérica para adicionar um item ao carrinho com verificação de duplicatas e limitação de toppings
-function addToCart(itemType, itemNumber, button) {
-    let itemDetails = '';
-    
-    if (itemType === 'Poke') {
-        const base = button.parentElement.querySelector('.poke-base').value;
-        const selectedToppings = Array.from(button.parentElement.querySelectorAll('.poke-toppings input:checked')).map(input => input.value);
-
-        // Limita a seleção de toppings a 5
-        if (selectedToppings.length > 5) {
-            alert("Você pode selecionar no máximo 5 toppings.");
-            return;  // Não adiciona ao carrinho se exceder o limite
-        }
-
-        itemDetails = `Poke ${itemNumber}: Base: ${base}, Toppings: ${selectedToppings.join(', ')}`;
-    } else if (itemType === 'Temaki') {
-        const temakiType = button.parentElement.querySelector(`input[name="temaki${itemNumber}"]:checked`).value;
-        itemDetails = `Temaki ${itemNumber}: Tipo: ${temakiType}`;
-    } else if (itemType === 'Ceviche') {
-        const cevicheSelected = button.parentElement.querySelector(`#ceviche${itemNumber}`).checked ? 'Ceviche' : '';
-        itemDetails = `Ceviche ${itemNumber}: ${cevicheSelected}`;
-    }
-
-    const itemIndex = cartItems.findIndex(item => item.name === itemDetails);
-    
-    // Verifica se o item já existe no carrinho
-    if (itemIndex !== -1) {
-        cartItems[itemIndex].quantity = 1; // Mantém a quantidade em 1
-    } else {
-        cartItems.push({ name: itemDetails, quantity: 1 });
-    }
-
-    updateCartDisplay();
 }
 
 // Função para remover um item
