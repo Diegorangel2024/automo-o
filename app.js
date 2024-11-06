@@ -48,13 +48,15 @@ function addToCart(itemType, itemNumber, button) {
         // Limita a seleção de toppings a 5
         if (selectedToppings.length > 5) {
             alert("Você pode selecionar no máximo 5 toppings.");
-            // Desmarcando o topping extra se o número exceder 5
-            button.parentElement.querySelectorAll('.poke-toppings input').forEach(input => {
-                if (input.checked && selectedToppings.length > 5) {
-                    input.checked = false;
-                    selectedToppings.pop(); // Remove o último topping selecionado
-                }
-            });
+            // Desmarcando o topping extra
+            let checkedToppings = button.parentElement.querySelectorAll('.poke-toppings input:checked');
+            let excessToppings = checkedToppings.length - 5;
+
+            // Desmarcar os toppings extras
+            for (let i = 0; i < excessToppings; i++) {
+                checkedToppings[i].checked = false;
+            }
+
             return;  // Não adiciona ao carrinho se exceder o limite
         }
 
