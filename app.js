@@ -153,7 +153,7 @@ function removeItemFromCart(itemName) {
 // Função para enviar o pedido via WhatsApp
 function sendOrder() {
     const phoneNumber = '5521996481418';
-    const message = encodeURIComponent(`Pedido:\n${cartItems.map(item => item.name).join('\n')}\nPara o cliente: ${document.getElementById('name').value}\nEndereço: ${document.getElementById('address').value}`);
+    const message = encodeURIComponent(`Pedido:\n${cartItems.map(item => item.name).join('\n')}\nCliente: ${document.getElementById('name').value}\nDirección: ${document.getElementById('address').value}`);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
     window.open(whatsappUrl, '_blank');
 }
